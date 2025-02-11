@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.harajuku.messagingApp.controller.FriendshipController;
-import com.harajuku.messagingApp.controller.UserController;
 import com.harajuku.messagingApp.model.User;
 import com.harajuku.messagingApp.service.FriendshipService;
 import com.harajuku.messagingApp.service.UserService;

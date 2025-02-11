@@ -1,7 +1,6 @@
 package com.harajuku.messagingApp.view;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.harajuku.messagingApp.controller.ChatController;
-import com.harajuku.messagingApp.controller.UserController;
 import com.harajuku.messagingApp.model.User;
 import com.harajuku.messagingApp.service.ChatRoomService;
 import com.harajuku.messagingApp.service.UserService;
