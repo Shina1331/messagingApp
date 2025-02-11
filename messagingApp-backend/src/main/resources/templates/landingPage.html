@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Landing Page</title>
+<a href="/chatRoom">Chat</a>
+<a th:href="@{/friends/{id}(id=${user.id})}">Friends</a>
+
+<div th:replace="fragments :: logoutButton"></div>
+</head>
+
+<style>
+/* Add custom CSS here to position the logout button */
+.logout-container {
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	z-index: 1000;
+}
+
+/* Initially hide the participants text */
+#participantsText {
+	display: none;
+}
+</style>
+
+<body>
+	<h1>
+		Hello <span th:text="${user.username}"></span>!
+	</h1>
+
+	<!-- Display Active Chats -->
+	<h2>Active Chats</h2>
+
+	<div th:if="${activeChats != null and activeChats.size() > 0}">
+		<div th:each="chat : ${activeChats}">
+		
+		<form action="/deleteChat" method=post>
+			   <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+		<input type="hidden" name="chatId" th:value="${chat.getId()}">
+	<button type="submit">Delete</button>	</form>
+		
+			<div th:if="${!chat.isGroupChat(chat)}">
+
+				<div th:each="person : ${chat.participants}">
+					<div th:if="${user.isFriend(person)}">
+						<p>
+							Chat with: <a th:href="@{/chatRoom/{id}(id=${chat.id})}"><span
+								th:text="${person.username}"></span></a>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div th:if="${chat.isGroupChat(chat)}">
+    <p>
+        <a th:href="@{/chatRoom/{id}(id=${chat.id})}">Group Chat:</a>
+        <span th:each="person, iterStat : ${chat.participants}">
+                <span th:text="${person.username}"></span>
+                <span th:if="${iterStat.index != chat.participants.size() - 1}">, </span> 
+        </span>
+    </p>
+</div>
+
+		</div>
+	</div>
+
+	<form action="/startNewChat" method="post">
+		<input type="hidden" name="_csrf" th:value="${_csrf.token}"> <label
+			for="startChatFriendId">Select a friend:</label> <select
+			id="startChatFriendId" name="friendId" required="required">
+			<option value="" disabled selected>Select a friend to chat
+				with</option>
+			<option th:each="option : ${friendsWithoutPriorChat}"
+				th:value="${option.id}" th:text="${option.username}"></option>
+		</select>
+
+		<button type="submit">Start New Chat</button>
+	</form>
+	<h2>Start a Group Chat!</h2>
+	<form action="/startNewGroupChat" method="post" id="groupChatForm">
+		<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+		<!-- Select Friends to Add to Group Chat -->
+		<label for="groupChatFriendId">Select a friend:</label> <select
+			id="groupChatFriendId" name="friendId" required="required">
+			<option value="" disabled selected>Select friends to chat
+				with</option>
+			<option th:each="option : ${friends}" th:value="${option.id}"
+				th:text="${option.username}"></option>
+		</select>
+
+		<button type="button" id="addFriendButton">Add friend to
+			Group Chat</button>
+
+		<!-- List of Added Friends (hidden in form) -->
+		<input type="hidden" id="addedFriendsListInput" name="addedFriends"
+			value="">
+
+		<button type="submit">Start New Group Chat</button>
+	</form>
+
+	<!-- Text that will be displayed when friends are added -->
+	<div id="addedFriendsToChat">
+		<p id="participantsText">Participants of your new Group Chat:</p>
+		<ul id="addedFriendsList"></ul>
+		<!-- Added friends will appear here -->
+	</div>
+
+	<!-- Script to handle dynamic display of selected friends -->
+	<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectElement = document.getElementById("groupChatFriendId");
+    const addedFriendsList = document.getElementById("addedFriendsList");
+    const addButton = document.getElementById("addFriendButton");
+    const participantsText = document.getElementById("participantsText");
+    const addedFriendsListInput = document.getElementById("addedFriendsListInput");
+
+    // Event listener for button click (to add selected friend)
+    addButton.addEventListener("click", function() {
+        const selectedFriendId = selectElement.value;  // Get selected friend's ID
+        const selectedFriendName = selectElement.options[selectElement.selectedIndex].text; // Get selected friend's name
+
+        // If the friend is selected and the selection is not the default option (empty value)
+        if (selectedFriendId && selectedFriendId !== "") {
+            // Create a new list item to display the selected friend
+            const friendListItem = document.createElement("li");
+            friendListItem.textContent = selectedFriendName;
+            friendListItem.setAttribute("data-id", selectedFriendId);  // Store the ID in the list item
+
+            // You can also add a remove button next to each added friend
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "Remove";
+            removeButton.addEventListener("click", function() {
+                addedFriendsList.removeChild(friendListItem);
+
+                // If no friends are left, hide the participants text
+                if (addedFriendsList.children.length === 0) {
+                    participantsText.style.display = "none";
+                }
+
+                // Update hidden input with the current list of friends
+                updateAddedFriendsInput();
+            });
+
+            // Append the remove button to the friend's list item
+            friendListItem.appendChild(removeButton);
+
+            // Append the friend to the addedFriendsList
+            addedFriendsList.appendChild(friendListItem);
+
+            // Show the participants text if this is the first friend added
+            participantsText.style.display = "block";
+
+            // Update hidden input with the current list of friends
+            updateAddedFriendsInput();
+        } else {
+            console.log("No friend selected or invalid selection.");
+        }
+    });
+
+    // Function to update the hidden input field with selected friends' IDs
+    function updateAddedFriendsInput() {
+        const friendIdsArray = Array.from(addedFriendsList.children).map(item => item.getAttribute("data-id"));
+        addedFriendsListInput.value = friendIdsArray.join(',');  // Join all friend IDs into a single string
+        console.log("Added Friends Input Value:", addedFriendsListInput.value);
+    }
+});
+</script>
+
+	<div th:if="${activeChats == null or activeChats.size() == 0}">
+		<p>No active chats.</p>
+	</div>
+
+</body>
+</html>

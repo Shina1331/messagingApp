@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Friends</title>
+  <a th:href="@{/landingPage/{id}(id=${user.id})}">Home</a>
+ <div th:replace="fragments :: logoutButton"></div>
+</head>
+<style>
+/* Add custom CSS here to position the logout button */
+.logout-container {
+	position: fixed;
+	top: 10px; /* Adjust the distance from the top */
+	right: 10px; /* Adjust the distance from the right */
+	z-index: 1000; /* Ensure it is above other elements */
+}
+</style>
+<body>
+	<!-- Display Friendships -->
+	<h2>Friendships</h2>
+	<div th:if="${friends != null and friends.size() > 0}">
+		<div th:each="friend : ${friends}">
+			<span th:text="${friend.username}"></span> 
+		</div>
+	</div>
+	    <!-- Add Friend Form -->
+    <form action="/friends/add" method="post">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+        
+        <label for="friendUsername">Select a friend:</label>
+        <!-- Create a dropdown (select element) with options for each user -->
+        <select id="friendId" name="friendId" required="required">
+            <option value="" disabled selected>Select a friend</option>
+            <option th:each="option : ${optionalFriends}" 
+                    th:value="${option.id}" 
+                    th:text="${option.username}"></option>
+        </select>
+        
+        <button type="submit">Add New Friend</button>
+    </form>
+
+	<div th:if="${friends == null or friends.size() == 0}">
+		<p>No current friendships.</p>
+	</div>
+</body>
+</html>

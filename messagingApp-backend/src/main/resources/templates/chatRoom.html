@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat</title>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.0/stomp.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<a th:href="@{/landingPage/{id}(id=${user.id})}">Home</a>
+<a th:href="@{/friends/{id}(id=${user.id})}">Friends</a>
+<div th:replace="fragments :: logoutButton"></div>
+</head>
+
+<style>
+/* Add custom CSS here to position the logout button */
+.logout-container {
+	position: fixed;
+	top: 10px; /* Adjust the distance from the top */
+	right: 10px; /* Adjust the distance from the right */
+	z-index: 1000; /* Ensure it is above other elements */
+}
+</style>
+
+
+<body>
+	<div>
+		<div th:if="${!chat.isGroupChat(chat)}">
+			<p>
+				This chatroom belongs to <span
+					th:text="${chat.participants[0].username}"> </span> and <span
+					th:text="${chat.participants[1].username}"></span>!
+			</p>
+		</div>
+		<div th:if="${chat.isGroupChat(chat)}">
+			<p>Welcome to the Group Chat!</p>
+			<p>Happy chatting!!</p>
+		</div>
+<div th:if="${chat.isGroupChat(chat)}">
+			<p>
+			<div id="participants">
+				<p>
+					This room's participants are: <span
+						th:each="person, iterStat : ${chat.participants}"> <span
+						th:text="${person.username}"></span> <span
+						th:if="${iterStat.index != chat.participants.size() - 1}">,
+					</span>
+					</span>
+				</p>
+			</div>
+		</div>
+		<div th:each="message : ${previousMessages}">
+			<p>
+				<strong><span th:text="${message.sender.username}"></span>:
+				</strong> <span th:text="${message.getText()}"></span>
+			</p>
+
+		</div>
+		
+		
+<div id="chatMessages">
+			<!-- Messages will appear here -->
+		</div>
+		<div>
+			<input type="text" id="messageInput"
+				placeholder="Type your message here" />
+			<button id="sendButton">Send</button>
+		</div>
+
+		<script>
+		// Retrieve chatId from Thymeleaf
+		var chatId = [[${chat.id}]];  // Pass chatId from Thymeleaf
+		var senderUsername = "[[${user.username}]]";  // Pass username from Thymeleaf
+
+		// Connect to the WebSocket server using the static endpoint
+	//	var socket = new WebSocket('ws://localhost:8080/chatRoom/' + chatId); 
+		var socket = new SockJS('/chatRoom/'+ chatId);  // Static endpoint for each chat room
+//	var socket = new WebSocket('http://localhost:8080/chatRoom/' + chatId); // Native WebSocket	
+	
+//	var socket = new WebSocket('ws://localhost:8080/test');
+socket.onopen = function() {
+    console.log("Connected!");
+};
+socket.onerror = function(error) {
+    console.log("Error:", error);
+};
+	
+	
+	
+	
+	
+	var stompClient = Stomp.over(socket);  // Create a STOMP client
+	
+		// Connect to the WebSocket server
+		stompClient.connect({}, function(frame) {
+			console.log("Connected to WebSocket!"); // Log connection success
+
+			// Subscribe to the chat room messages
+			stompClient.subscribe('/topic/chatRoom/' + chatId + '/messages', function(messageOutput) {
+				console.log("Received message:", messageOutput.body);
+				var chatMessage = JSON.parse(messageOutput.body); // Parse the incoming message
+
+				// Access the sender's username and message text
+				var username = chatMessage.sender.username; 
+				var messageText = chatMessage.text; 
+
+				// Display the message in the chat box
+				var messagesDiv = document.getElementById("chatMessages");
+				messagesDiv.innerHTML += '<p><strong>' + username + ':</strong> ' + messageText + '</p>';
+			});
+		}, function(error) {
+			console.log("Error connecting to WebSocket: ", error); // Log any errors in connection
+		});
+
+		// Send message when the "Send" button is clicked
+		document.getElementById('sendButton').addEventListener('click', function() {
+			console.log("Send button clicked");
+
+			// Prepare message object to send
+			var message = {
+				text: document.getElementById('messageInput').value,  // Get message text from input
+				sender: { username: senderUsername },  // Use Thymeleaf variable for username
+				dtype: "SimpleTextMessage"
+			};
+
+		
+
+			// Send the message if WebSocket is connected
+			if (stompClient.connected) {
+				console.log("Sending message:", message);
+				stompClient.send("/app/chatRoom/" + chatId + "/chat.send", {}, JSON.stringify(message));
+			} else {
+				console.log("WebSocket not connected yet");
+			}
+		});
+	</script>
+</body>
+</html>

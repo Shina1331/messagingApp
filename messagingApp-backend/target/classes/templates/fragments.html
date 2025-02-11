@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- No need to define styles here, you can include them in the main layout if needed -->
+</head>
+<body>
+
+    <!-- Define the logout button fragment -->
+    <div th:fragment="logoutButton">
+        <div class="logout-container">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
