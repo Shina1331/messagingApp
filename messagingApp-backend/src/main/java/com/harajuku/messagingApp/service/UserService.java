@@ -18,12 +18,12 @@ public class UserService {
 
 	@Autowired
 	UserRepository userRep;
-	
+
 	@Autowired
 	public UserService(UserRepository userRep) {
 		this.userRep = userRep;
 	}
-	
+
 	public void registerUser(String username, String password) {
 		User user = new User();
 		user.setUsername(username);
@@ -32,11 +32,10 @@ public class UserService {
 		user.setChatRooms(new ArrayList<>());
 		userRep.save(user);
 	}
-	
-	public List<User> findAll(){
+
+	public List<User> findAll() {
 		return userRep.findAll();
 	}
-
 
 	public User findByUsername(String username) {
 		return userRep.findByUsername(username);
@@ -45,19 +44,22 @@ public class UserService {
 	public User findById(long userId) {
 		return userRep.findById(userId);
 	}
-	
+
 	public void save(User user) {
 		userRep.save(user);
 	}
+
 	public User findUserByPrincipal(Principal prince) {
 		return findByUsername(prince.getName());
 	}
-	
+
 	public List<User> generateListOfUsers(String addedFriends) {
 		List<User> users = new ArrayList<>();
-		addedFriends.split(",");
-		for(int i = 0; i < addedFriends.split(",").length; i++) {
-			users.add(findById(Integer.valueOf(addedFriends.split(",")[i])));
+		if (!addedFriends.isBlank()) {
+			addedFriends.split(",");
+			for (int i = 0; i < addedFriends.split(",").length; i++) {
+				users.add(findById(Integer.valueOf(addedFriends.split(",")[i])));
+			}
 		}
 		return users;
 	}

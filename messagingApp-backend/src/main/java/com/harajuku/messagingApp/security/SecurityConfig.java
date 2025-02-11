@@ -2,6 +2,8 @@ package com.harajuku.messagingApp.security;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import com.harajuku.messagingApp.enums.Role;
+import com.harajuku.messagingApp.App;
 import com.harajuku.messagingApp.model.User;
 import com.harajuku.messagingApp.repository.UserRepository;
 
@@ -25,7 +27,8 @@ import com.harajuku.messagingApp.repository.UserRepository;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private AuthenticationSuccessHandler successHandler;
-
+	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	
 	@Autowired
 	UserRepository userRep;
 
@@ -42,9 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		
-		
-		
+		try {
 		http.authorizeRequests().antMatchers("/login", "/register").permitAll() // Allow unauthenticated access to login
 				.antMatchers("/landingPage").authenticated() // Require authentication for
 				.antMatchers("/chatRoom").authenticated()
@@ -53,7 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and().formLogin().loginPage("/login") // Default login page
 				.loginProcessingUrl("/login") // Spring Security's default login processing URL
 				.successHandler(successHandler)
-//				.defaultSuccessUrl("/landingPage", true) // Redirect to landing page after successful login
 				.failureUrl("/login?error=true") // Redirect to login page on failure
 				.permitAll()
 				.and()
@@ -61,10 +61,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl("/login?logout")
 				.invalidateHttpSession(true)
 				.clearAuthentication(true)
-				.permitAll(); // Allow logout for everyone
-//			http.csrf().disable() 
-//			.authorizeRequests();
-			
+				.permitAll(); }
+		catch(Exception ex) {
+			logger.error("cause: " + ex.getCause());;
+		}
 	}
 
 	@Override
@@ -82,6 +82,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+		try {
+			auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+		} catch(Exception ex) {
+			logger.error("cause: " + ex.getCause());
+		}
+		
 	}
 }

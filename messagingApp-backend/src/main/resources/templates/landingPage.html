@@ -30,15 +30,18 @@
 
 	<!-- Display Active Chats -->
 	<h2>Active Chats</h2>
-
+	<div th:if="${activeChats == null or activeChats.size() == 0}">
+		<p>No active chats.</p>
+	</div>
 	<div th:if="${activeChats != null and activeChats.size() > 0}">
 		<div th:each="chat : ${activeChats}">
-		
-		<form action="/deleteChat" method=post>
-			   <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-		<input type="hidden" name="chatId" th:value="${chat.getId()}">
-	<button type="submit">Delete</button>	</form>
-		
+
+			<form action="/deleteChat" method=post>
+				<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+				<input type="hidden" name="chatId" th:value="${chat.getId()}">
+				<button type="submit">Delete</button>
+			</form>
+
 			<div th:if="${!chat.isGroupChat(chat)}">
 
 				<div th:each="person : ${chat.participants}">
@@ -52,14 +55,15 @@
 			</div>
 
 			<div th:if="${chat.isGroupChat(chat)}">
-    <p>
-        <a th:href="@{/chatRoom/{id}(id=${chat.id})}">Group Chat:</a>
-        <span th:each="person, iterStat : ${chat.participants}">
-                <span th:text="${person.username}"></span>
-                <span th:if="${iterStat.index != chat.participants.size() - 1}">, </span> 
-        </span>
-    </p>
-</div>
+				<p>
+					<a th:href="@{/chatRoom/{id}(id=${chat.id})}">Group Chat:</a> <span
+						th:each="person, iterStat : ${chat.participants}"> <span
+						th:text="${person.username}"></span> <span
+						th:if="${iterStat.index != chat.participants.size() - 1}">,
+					</span>
+					</span>
+				</p>
+			</div>
 
 		</div>
 	</div>
@@ -98,6 +102,9 @@
 
 		<button type="submit">Start New Group Chat</button>
 	</form>
+ <div th:if="${errorGroupChatCreation != null}"> 
+		<p th:text="${errorGroupChatCreation.getMessage()}"></p>
+</div>
 
 	<!-- Text that will be displayed when friends are added -->
 	<div id="addedFriendsToChat">
@@ -167,9 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-	<div th:if="${activeChats == null or activeChats.size() == 0}">
-		<p>No active chats.</p>
-	</div>
+
 
 </body>
 </html>
