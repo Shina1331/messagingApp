@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "messages")
+//@Table(name = "messages")
 @DiscriminatorValue("SimpleTextMessage")
 public class SimpleTextMessage extends ChatMessage{
 	@Column(name = "text")

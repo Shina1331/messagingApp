@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>Landing Page</title>
-<a href="/chatRoom">Chat</a>
+<!--   <a href="/chatRoom">Public Chatroom</a> -->
 <a th:href="@{/friends/{id}(id=${user.id})}">Friends</a>
 
 <div th:replace="fragments :: logoutButton"></div>
