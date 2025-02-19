@@ -1,4 +1,4 @@
-package com.harajuku.messagingApp.view;
+package com.harajuku.messagingApp.controller;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.harajuku.messagingApp.controller.InputValidation;
 import com.harajuku.messagingApp.enums.AdminMessages;
 import com.harajuku.messagingApp.model.User;
+import com.harajuku.messagingApp.service.InputValidation;
 import com.harajuku.messagingApp.service.UserService;
 
 @Controller

@@ -1,4 +1,4 @@
-package com.harajuku.messagingApp.controller;
+package com.harajuku.messagingApp.service;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.harajuku.messagingApp.controller;
+package com.harajuku.messagingApp.service;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,4 +1,4 @@
-package com.harajuku.messagingApp.view;
+package com.harajuku.messagingApp.controller;
 
 import java.security.Principal;
 import java.util.List;
